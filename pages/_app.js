@@ -1125,6 +1125,21 @@ function MyApp({ Component, pageProps }) {
     };
   }, [router.events]);
 
+  //Hide Sidebar by default on smaller screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (screen.width < 768) {
+        if (state.sidebarOpen) dispatch({ type: ACTIONS.TOGGLE_SIDEBAR });
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("load", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("load", handleResize);
+    };
+  });
+
   return (
     <>
       <Script
