@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import * as gtag from "../lib/gtag";
 import { ThemeProvider } from "next-themes";
+import Layout from "../components/layout";
 
 export const StateContext = createContext(null);
 
@@ -22,6 +23,7 @@ export const ACTIONS = {
   DELETE_REPO: "delete-repo",
   ADD_SUPPORT: "add-support",
   TOGGLE_COPY_MODAL: "toggle-copy-modal",
+  TOGGLE_SIDEBAR: "toggle-sidebar",
 };
 
 // Icon Store
@@ -754,7 +756,7 @@ const initialState = {
     longDescription: "",
     location: "",
     portfolioTitle: "",
-    portfolioLink: null,
+    portfolioLink: "",
     emailMe: "",
     workingOnTitle: "",
     workingOnLink: "",
@@ -934,6 +936,7 @@ const initialState = {
       linkSuffix: "",
     },
   },
+  sidebarOpen: true,
   modal: false,
 };
 
@@ -1099,6 +1102,11 @@ function reducer(state, action) {
         ...state,
         modal: action.payload,
       };
+    case ACTIONS.TOGGLE_SIDEBAR:
+      return {
+        ...state,
+        sidebarOpen: !state.sidebarOpen,
+      };
     default:
       throw new Error();
   }
@@ -1116,6 +1124,21 @@ function MyApp({ Component, pageProps }) {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
+
+  //Hide Sidebar by default on smaller screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (screen.width < 768) {
+        if (state.sidebarOpen) dispatch({ type: ACTIONS.TOGGLE_SIDEBAR });
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("load", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("load", handleResize);
+    };
+  });
 
   return (
     <>
@@ -1140,7 +1163,9 @@ function MyApp({ Component, pageProps }) {
       />
       <ThemeProvider enableSystem={true} attribute="class">
         <StateContext.Provider value={{ state, dispatch }}>
-          <Component {...pageProps} />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
         </StateContext.Provider>
       </ThemeProvider>
     </>

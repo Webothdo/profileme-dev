@@ -2,18 +2,26 @@ import React, { useContext } from "react";
 
 import { ACTIONS } from "../../pages/_app";
 import { StateContext } from "../../pages/_app";
+import { useRouter } from "next/router";
 
-const MenuItem = ({ text, section, setSidebarOpen, icon }) => {
+const MenuItem = ({ text, section, icon }) => {
   const { state, dispatch } = useContext(StateContext);
+  const router = useRouter();
+
   return (
     <li
       className="group"
       onClick={() => {
+        if (router.pathname !== "") {
+          router.push("/");
+        }
         dispatch({
           type: ACTIONS.SHOW_SECTION,
           payload: section,
         });
-        setSidebarOpen(false);
+        dispatch({
+          type: ACTIONS.TOGGLE_SIDEBAR,
+        });
       }}
     >
       <span
